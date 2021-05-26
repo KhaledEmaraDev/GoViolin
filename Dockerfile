@@ -2,12 +2,17 @@
 # Build Stage
 FROM golang:1.16 AS builder
 
-WORKDIR /go/src/github.com/KhaledEmaraDev/GoViolin/
+ENV GOPATH=/root/go
+ENV GOMODCACHE=/root/go/pkg/mod
+ENV GOCACHE=/root/.cache/go-build
+ENV GOENV=/root/.config/go/env
+
+WORKDIR /root/go/src/github.com/KhaledEmaraDev/GoViolin/
 
 COPY go.mod go.sum ./
 RUN go get -d -v ./...
 
-COPY main.go home.go scale.go duet.go ./
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 
 # Run Stage
@@ -17,7 +22,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /go/src/github.com/KhaledEmaraDev/GoViolin/app .
+COPY --from=builder /root/go/src/github.com/KhaledEmaraDev/GoViolin/app .
 
 COPY templates/ ./templates/
 COPY css/ ./css/
