@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
         - name: go-violin
-          image: dev.local/instabug:0.1
-          imagePullPolicy: Never
+          image: registry.hub.docker.com/khaledemaradev/go-violin:43
           env:
             - name: PORT
               value: "7090"
@@ -30,3 +29,5 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 7090
+      imagePullSecrets:
+        - name: regcred
