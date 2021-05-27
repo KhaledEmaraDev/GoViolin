@@ -23,6 +23,14 @@ I migrated towards Go Modules, because it's the preferred way of dependency mana
 For Docker I used a multi-stage build to shave off as much space as possible. The first
 stage builds the binary, while the second runs it through Apline Linux.
 
+To build and run the Docker image irrespective of Jenkins and Kubernetes:
+```sh
+cd <project-root-directory>
+docker build -t dev.local/instabug:0.1 .
+docker run -it --rm -p 7090:7090 dev.local/instabug:0.1
+```
+You can then visit http://localhost:7090 on your browser to open the web page.
+
 ## Jenkins
 For Jenkins I used the following plugins in addition to the recommended ones:
 * [Docker plugin](https://plugins.jenkins.io/docker-plugin)
@@ -64,17 +72,26 @@ kubectl create secret docker-registry regcred --docker-server=https://registry.h
 To run the application run the following:
 ```sh
 cd <project-root-directory>
+minikube start
 kubectl apply -f kubernetes/go-violin-deployment.yaml
 kubectl apply -f kubernetes/go-violin-service.yaml
 ```
 Please, give Kubernetes a minute or two to pull the image and provision the pod.
 
 To access the application you can do one of the following:
-1. Use port forwarding
+1. Use port forwarding and then visit http://localhost:7090
 ```sh
 kubectl port-forward service/go-violin-service 7090:7090
 ```
-2. Use minikube to open a browser session or copy the URL
+2. Use minikube to open a browser session or copy the service URL
 ```sh
 minikube service go-violin-service
 ```
+
+## Docker Hub Registery
+For this repo I'm using my own Docker Hub repository. You need my credentials to be able
+to pull my image. You can instead use your own by editing `Jenkinsfile` line 79 to inlcude
+your repository name instead of `khaledemaradev`. Don't forget to update
+`kubernetes/go-violin-deployment` with the new name in line 19. The image tag changes with
+each push you can either tag the image with latest or update the kubernetes manifest with
+each commit to deploy manually. You can check the current tag on the Docker Hub website.
